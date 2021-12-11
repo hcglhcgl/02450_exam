@@ -5,12 +5,7 @@ import pandas as pd
 from exam_toolbox import *
 import re
 import os
-#from Scripts import *
-#from Mine_Scripts import GMM_Plot
-#from Scripts import ann
 
-prep = prep_tools()
-pca = pca_calc()
 class exam:
 
     # ----------------------------------------------- OPG 1-----------------------------------------------
@@ -20,6 +15,7 @@ class exam:
         return "C"
 
     # ----------------------------------------------- OPG 2-----------------------------------------------
+    pca = pca_calc()
     def opg2():
         # We insert the the diagonal numbers from the S matrix
         diag_values = [13.5,7.6,6.5,5.8,3.5,2.0]
