@@ -1,9 +1,9 @@
 """
 Functions created to use for the exam in the course 02450 Introduction to machine learning and datamining at the Technical University of Denmark
 
-Author: Lukas Leindals
+Author: Lukas Leindals / Hans Christian Lundberg
 """
-__version__ = "Revision: 2019-12-15"
+__version__ = "Revision: 2021-12-11"
 
 import toolbox_extended as te  # pip install --ignore-installed ml02450
 import toolbox_02450 as tb
@@ -152,6 +152,28 @@ class pca_calc:
             )
         )
         return proj_coord
+    def draw_curve_from_diagonal_values(self,values):
+        """
+
+        :param values: singular_values e.g [17.4, 7.3, 4.3]
+        :return:
+        """
+        squares = np.square(values)
+        sum = np.sum(squares)
+        rho = squares / (np.ones(len(squares)) * sum)
+        threshold = 0.9
+
+        # Plot variance explained
+        plt.figure()
+        plt.plot(range(1, len(rho) + 1), rho, 'x-')
+        plt.plot(range(1, len(rho) + 1), np.cumsum(rho), 'o-')
+        plt.plot([1, len(rho)], [threshold, threshold], 'k--')
+        plt.title('Variance explained by principal components')
+        plt.xlabel('Principal component')
+        plt.ylabel('Variance explained')
+        plt.legend(['Individual', 'Cumulative', 'Threshold'])
+        plt.grid()
+        plt.show()
 
 
 class cross_val:
@@ -395,6 +417,7 @@ class supervised:
         """
         classes = {"red": class1, "black": class2}
 
+        # Get indexes of of red/black observations
         red_ind = [i - 1 for i in classes["red"]]
         black_ind = [i - 1 for i in classes["black"]]
 
@@ -444,7 +467,7 @@ class supervised:
 
     def knn_dist_pred(self, df, classes, K):
         """
-        calculates predictions given a matrix with euclidean distances, can only handle two classes: red and black
+        calculates predictions given a matrix with euclidean distances, can handle multiple classes
         -------------------------------------------------------
         class1 = list with numbers of observations in the red class (starts at 1)
         class2 = list with numbers of observations in the black class (starts at 1)
@@ -634,7 +657,7 @@ class cluster:
         """
         plots dendrogram given a matrix of distances and a linakge method
         ---------------------------------------------------------
-        dist = symmetrical matrix containing distances
+        dist_df = symmetrical matrix/dataframe containing distances
         Method = linkage method:
             "single"
             "complete"
@@ -660,7 +683,7 @@ class cluster:
         Z = linkage(Z, method=Method)
         # R = dendrogram(y, orientation = orientation, labels = labels, distance_sort = sort,truncate_mode='level', p=3)
 
-        R = cluster.fancy_dendrogram(
+        R = cluster.fancy_dendrogram(self,
             Z,
             leaf_rotation=90.0,
             leaf_font_size=12.0,
@@ -691,7 +714,7 @@ class cluster:
 
         y : Cluster B
 
-        Returns: Similarity Index - Rand und Jaccard
+        Returns: Similarity Index - Rand og Jaccard
         eller den returnere ikke noget, den printer bare
         -------
         Copyright Peter Pik,
@@ -944,6 +967,109 @@ class association_mining:
         rules_conf_sup = rules_conf_sup.reset_index(drop=True)
 
         return frules, rules_conf_sup
+class adaboost:
+    
+    def adaboost(self, delta, rounds):
+        """
+        Given a classification problem with 25 observations in total, 
+        with 5 of them being misclassified in round 1, the weights can be calculated as:
+        miss = np.zeros(25) 
+        miss[:5] = 1 
+        te.adaboost(miss, rounds=1)
+
+        The weights are printed 
+        """
+        # Initial weights
+        delta = np.array(delta)
+        n = len(delta)
+        weights = np.ones(n) / n
+
+        # Run all rounds
+        for i in range(rounds):
+            eps = np.mean(delta == 1)
+            alpha = 0.5 * np.log((1 - eps) / eps)
+            s = np.array([-1 if d == 0 else 1 for d in delta])
+
+            # Calculate weight vector and normalize it
+            weights = weights.T * np.exp(s * alpha)
+            weights /= np.sum(weights)
+
+            # Print resulting weights
+        for i, w in enumerate(weights):
+            print('w[%i]: %f' % (i, w))
+            
+    def get_alpha_given_w(self, M, last_wrong):
+        """
+        :param M: Numpy array of weights in dim. Number of Obs x Number of Rounds
+        :param last_wrong: Binary vector of wrong classified observations in the last Boosting round.
+        :return alpha list
+        """
+        alpha = []
+        for i in range(M.shape[1] - 1):
+            er = np.dot(M[:, i], (M[:, i + 1] > M[:, i]))
+            alpha.append(1 / 2 * np.log((1 - er) / er))
+        er = np.dot(M[:, M.shape[1] - 1], last_wrong)
+        alpha.append(1 / 2 * np.log((1 - er) / er))
+        print(alpha)
+        return alpha
+class ann:
+    
+    def logistic(self,x):
+        return 1 / (1 + np.exp(-x))
 
 
+    def rect(self,x):
+        return np.max([x, 0])
+
+
+    def tanh(self,x):
+        return np.sinh(x) / np.cosh(x)
+
+
+    def get_ann(self,w02, weights, matrices, activation='logistic'):
+        """
+
+        ann = get_ann(2.84, [3.25, 3.46], [[21.78, -1.65, 0, -13.26, -8.46], [-9.6, -0.44, 0.01, 14.54, 9.5]], "rect")
+        y = ann([1, 6.8, 225, 0.44, 0.68])
+
+        REMEMBER TO PUT "1" AT THE START OF ann([..])
+        """
+        matrices = np.array([np.matrix(m).T for m in matrices])
+        weights = np.array(weights)
+
+        activation_func = {
+            "logistic": ann.logistic,
+            "rect": ann.rect,
+            "tanh": ann.tanh
+        }[activation]
+
+        def predict_y(x):
+            x = np.matrix(x)
+            activated_matrices = np.array([activation_func(self,x * m) for m in matrices])
+            ann_sum = 0
+            for (i, _) in enumerate(activated_matrices):
+                ann_sum = ann_sum + (activated_matrices[i] * weights[i])
+            return w02 + ann_sum
+
+        return predict_y
+class gmm:
+    def plot_gmm(self,m,cov):
+        """Function for plotting GMM contours
+        Changing the coordinate system size is done inside the function!!
+        Args:
+            m ([np.array]): Mu/mean/center. Example: np.array([[1.84],[2.43]])
+            cov ([np.array]): Covariance matrix. Example: np.array([[0.2639, 0.0803], [0.0803, 0.0615]])
+        """
+        N = 1000
+
+        cov_inv = np.linalg.inv(cov)  # inverse of covariance matrix
+        cov_det = np.linalg.det(cov)  # determinant of covariance matrix
+        # Plotting
+        x = np.linspace(-2, 6, N) # Size of coordinate system
+        y = np.linspace(-2, 4, N)
+        X,Y = np.meshgrid(x,y)
+        coe = 1.0 / ((2 * np.pi)**2 * cov_det)**0.5
+        Z = coe * np.e ** (-0.5 * (cov_inv[0,0]*(X-m[0])**2 + (cov_inv[0,1] + cov_inv[1,0])*(X-m[0])*(Y-m[1]) + cov_inv[1,1]*(Y-m[1])**2))
+        plt.contour(X,Y,Z)
+        plt.show()
 # tests

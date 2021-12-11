@@ -48,6 +48,6 @@ def get_weights(w_init, false_ones):
     return w_init
 
 
-# get_alpha_given_w(M, last_wrong)
+get_alpha_given_w(M, last_wrong)
 
-get_weights(M[:, 1], np.array([0, 0, 0, 0, 0, 0, 0, 1, 1, 0]))
+#get_weights(M[:, 1], np.array([0, 0, 0, 0, 0, 0, 0, 1, 1, 0]))
