@@ -6,6 +6,7 @@ from exam_toolbox import *
 import re
 import os
 
+pca = pca_calc()
 class exam:
 
     # ----------------------------------------------- OPG 1-----------------------------------------------
@@ -15,7 +16,7 @@ class exam:
         return "C"
 
     # ----------------------------------------------- OPG 2-----------------------------------------------
-    pca = pca_calc()
+    
     def opg2():
         # We insert the the diagonal numbers from the S matrix
         diag_values = [13.5,7.6,6.5,5.8,3.5,2.0]
@@ -239,7 +240,7 @@ class exam:
         assc = association_mining()
         # We add the indexes of the assocation rule elements
         assc.rule_stats(df,[3,5,7,9],[11])
-        # Rule = 0.2
+        # Support = 0.2
         # Confidence = 0.666
         return "B"
 
@@ -358,7 +359,7 @@ class exam:
 #        ans.loc[14] = "Q13: {}".format(exam.opg13())
 #        ans.loc[15] = "Q14: {}".format(exam.opg14())
 #        ans.loc[16] = "Q15: {}".format(exam.opg15())
-#        ans.loc[17] = "Q16: {}".format(exam.opg16())
+        ans.loc[17] = "Q16: {}".format(exam.opg16())
 #        ans.loc[18] = "Q17: {}".format(exam.opg17())
 #        ans.loc[19] = "Q18: {}".format(exam.opg18())
 #        ans.loc[20] = "Q19: {}".format(exam.opg19())

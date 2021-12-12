@@ -24,6 +24,8 @@ def plot_boundary(df):
         plt.legend()
         plt.xlabel("x1")
         plt.ylabel("x2")
+        plt.xlim([low, high])
+        plt.ylim([low, high])
         plt.show()
         
 #How many random data points

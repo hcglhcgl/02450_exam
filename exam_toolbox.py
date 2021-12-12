@@ -5,6 +5,7 @@ Author: Lukas Leindals / Hans Christian Lundberg
 """
 __version__ = "Revision: 2021-12-11"
 
+from scipy.spatial import distance
 import toolbox_extended as te  # pip install --ignore-installed ml02450
 import toolbox_02450 as tb
 import numpy as np
@@ -19,6 +20,7 @@ from sklearn.preprocessing import label_binarize
 from apyori import apriori
 from sklearn.cluster import KMeans
 import sklearn.metrics as metrics
+import itertools as IT
 
 
 class prep_tools:
@@ -710,15 +712,17 @@ class cluster:
         """
         Parameters
         ----------
-        x : Cluster A (labels)
+        x : Cluster A (labels) = The truth: Example: [1,2,1,1,1,2,2,2,2,1]
 
-        y : Cluster B
-
-        Returns: Similarity Index - Rand og Jaccard
-        eller den returnere ikke noget, den printer bare
-        -------
-        Copyright Peter Pik,
-        Danmarks Tekniske Universitet
+        y : Cluster B eg. [1,2,1,1,1,3,1,1,1,1]
+        Example from:
+        Cutoff at the level of 3 clusters = 3 vertical lines
+        Here we see O2 has been seperated, and O6 as well. 
+        Since O2 was seperated in the first cluster, we give it 2
+        And O6 we give 3
+        The rest have not been seperated yet, but majority black so we give it 1
+        
+        Printer similarity Index - Rand og Jaccard
         """
         x = np.array(x)
         np.array(y)
@@ -786,7 +790,24 @@ class cluster:
             )
         )
         return None
+    def distance_between_clusters(self,dist_matrix,cluster1,cluster2):
+        """Returns distance between clusters (avg linkage function)
 
+        Args:
+            dist_matrix (matrix): Distance matrix between observations
+            cluster1: Indexes of cluster 1 observations
+            cluster2: Indexes of cluster 2 observations
+        """
+        distances = []
+        for i in cluster1:
+            for j in cluster2:
+                distances.append(dist_matrix[i][j])
+        distances = np.array(distances)
+        sum = np.sum(distances)
+        elements = len(cluster1) * len(cluster2) 
+        print (sum/elements)
+        
+        
 
 class similarity:
     def measures(self, x, y):
@@ -1011,6 +1032,7 @@ class adaboost:
         er = np.dot(M[:, M.shape[1] - 1], last_wrong)
         alpha.append(1 / 2 * np.log((1 - er) / er))
         print(alpha)
+        
         return alpha
 class ann:
     
@@ -1052,6 +1074,7 @@ class ann:
             return w02 + ann_sum
 
         return predict_y
+    
 class gmm:
     def plot_gmm(self,m,cov):
         """Function for plotting GMM contours
@@ -1072,4 +1095,45 @@ class gmm:
         Z = coe * np.e ** (-0.5 * (cov_inv[0,0]*(X-m[0])**2 + (cov_inv[0,1] + cov_inv[1,0])*(X-m[0])*(Y-m[1]) + cov_inv[1,1]*(Y-m[1])**2))
         plt.contour(X,Y,Z)
         plt.show()
+        
+class itemset:
+    def itemsets(self,df, support_min):
+        """
+        df: dataframe with each row being a basket, and each column being an item
+        support_min: minimum support level
+        """
+        itemsets = []
+        n = len(df)
+        for itsetSize in np.arange(1, len(df.columns) + 1): # Start with 1-itemsets, keep going till n_attributes-itemsets
+            for combination in IT.combinations(df.columns, itsetSize):
+                sup = itemset.support(self,df[list(combination)])
+                if sup > support_min:
+                    itemsets.append(set(combination))
+        print(itemsets)
+        return itemsets
+    
+    def support(self,itemset):
+        """
+        Returns the support value for the given itemset
+        itemset is a pandas dataframe with one row per basket, and one column per item
+        """
+
+        # Get the count of baskets where all the items are 1
+        baskets = itemset.iloc[:,0].copy()
+        for col in itemset.columns[1:]:
+            baskets = baskets & itemset[col]
+
+        return baskets.sum() / float(len(baskets))
+    
+    def confidence(self,df, antecedentCols, consequentCols):
+        """
+        df is a pandas dataframe
+        antecedentCols are the labels for the columns/items that make up the antecedent in the association rule
+        consequentCols are the labels for the columns/items that make up the consequent in the association rule
+        """
+        top = itemset.support(self,df[antecedentCols + consequentCols])
+        bottom = itemset.support(self,df[antecedentCols])
+        conf = top/bottom
+        print ("The confidence is: ", conf)
+        return conf
 # tests
