@@ -269,13 +269,13 @@ class exam:
         ens.plot_roc_pred(truth,probabilities)
         # So it must be curve 4
         # Answer D
-        return "E"
+        return "D"
 
     # ----------------------------------------------- OPG 19-----------------------------------------------
     def opg19():
         # Run through the forward selection method
         # Answer is B
-        return "E"
+        return "B"
 
     # ----------------------------------------------- OPG 20-----------------------------------------------
     def opg20():
@@ -283,7 +283,7 @@ class exam:
         denominator = 0.17*0.268+0.28*0.366+0.33*0.365
         print (numerator/denominator)
         # So the answer is A
-        return "E"
+        return "A"
 
     # ----------------------------------------------- OPG 21-----------------------------------------------
     def opg21():
@@ -303,28 +303,79 @@ class exam:
 
     # ----------------------------------------------- OPG 23-----------------------------------------------
     def opg23():
-        #gg
-        return "E"
+        gm = gmm()
+        weights = [0.19,0.34,0.48]
+        means = [3.177,3.181,3.184]
+        std_dev = [0.0062,0.0076,0.0075]
+        gm.prob_gmm(3.19,weights,means,std_dev)
+        # We see it must be B
+        return "B"
 
     # ----------------------------------------------- OPG 24-----------------------------------------------
     def opg24():
-
-        return "E"
+        ada  = adaboost()
+        errors = [0,1,1,1,0,1,1]
+        
+        ada.adaboost(errors,1)
+        # We see it must be A
+        return "A"
 
     # ----------------------------------------------- OPG 25-----------------------------------------------
     def opg25():
-
+        # Not sure, calculate the stuff ?
         return "E"
 
     # ----------------------------------------------- OPG 26-----------------------------------------------
     def opg26():
-
-        return "E"
+        # We can see that the it must be Sigma 1 that is right matrix, because x1/x2 are positively correlated:
+        # So we see the matrix between x1 and x2 is 0.5     0.56
+        #                                           0.56    1.5
+        # The correlation coefficient is defined as: p=cov(x,y)/(sigma_x*sigma_y)
+        p = 0.56/(0.5*1.5)
+        print (p)
+        
+        # Using function:
+        sim_obj = similarity()
+        cov = [[0.5, 0.56], [0.56, 1.5]]
+        sim_obj.correlation_from_covariance(cov)
+        return "A"
 
     # ----------------------------------------------- OPG 27-----------------------------------------------
     def opg27():
-
-        return "E"
+        GMM_Plot = gmm()
+        # We plot different options for first cluster:
+        #A & D
+        mu = [[-7.2],[10.0]] # defining the mean/center of the Gaussian (mX, mY)
+        cov = [[2.4, -0.4], [-0.4, 1.7]]   # defining the covariance matrix left-right, row by row
+        GMM_Plot.plot_gmm(mu,cov)
+        #B & C
+        mu = [[-7.2],[10.0]] # defining the mean/center of the Gaussian (mX, mY)
+        cov = [[1.6, 0.9], [0.9, 1.5]]   # defining the covariance matrix left-right, row by row
+        GMM_Plot.plot_gmm(mu,cov)
+        
+        #Looks like it must A or D
+        # We plot the second cluster
+        #A
+        mu = [[-13.8],[-0.8]] # defining the mean/center of the Gaussian (mX, mY)
+        cov = [[1.7, -0.3], [-0.3, 2.3]]   # defining the covariance matrix left-right, row by row
+        GMM_Plot.plot_gmm(mu,cov)
+        #D
+        mu = [[-13.8],[-0.8]] # defining the mean/center of the Gaussian (mX, mY)
+        cov = [[1.6, 0.9], [0.9, 1.5]]   # defining the covariance matrix left-right, row by row
+        GMM_Plot.plot_gmm(mu,cov)
+        
+        # definitely looks like A, but we check the last one to be sure
+        #A
+        mu = [[-6.8],[6.4]] # defining the mean/center of the Gaussian (mX, mY)
+        cov = [[1.6, 0.9], [0.9, 1.5]]   # defining the covariance matrix left-right, row by row
+        GMM_Plot.plot_gmm(mu,cov)
+        #D
+        mu = [[-6.8],[6.4]] # defining the mean/center of the Gaussian (mX, mY)
+        cov = [[1.7, -0.3], [-0.3, 2.3]]   # defining the covariance matrix left-right, row by row
+        GMM_Plot.plot_gmm(mu,cov)
+        
+        # It's A
+        return "A"
 
     # -------------------------------- answers dataframe -------------------------------------------------
     def answers(show=True, csv=False, excel=False):
@@ -358,11 +409,11 @@ class exam:
         # ans.loc[22] = ""
 
         # ans.loc[23] = "Q21: {}".format(exam.opg21())
-        ans.loc[24] = "Q22: {}".format(exam.opg22())
+        # ans.loc[24] = "Q22: {}".format(exam.opg22())
         # ans.loc[25] = "Q23: {}".format(exam.opg23())
         # ans.loc[26] = "Q24: {}".format(exam.opg24())
         # ans.loc[27] = "Q25: {}".format(exam.opg25())
-        # ans.loc[28] = "Q26: {}".format(exam.opg26())
+        ans.loc[28] = "Q26: {}".format(exam.opg26())
         # ans.loc[29] = "Q27: {}".format(exam.opg27())
 
         if excel:

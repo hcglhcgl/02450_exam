@@ -30,8 +30,9 @@ class exam:
         """
         The mean has been subtracted from the median, for sex, the median must have been 1, since it is now -1.
         It's 1-2 = -1
+        So it means there are more male than female, since the median is 1
         """
-        return "E"
+        return "C"
 
     # ----------------------------------------------- OPG 4-----------------------------------------------
     def opg4():
