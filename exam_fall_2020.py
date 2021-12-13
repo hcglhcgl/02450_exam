@@ -46,8 +46,9 @@ class exam:
     # ----------------------------------------------- OPG 5-----------------------------------------------
     def opg5():
         pca = pca_calc()
-        pca.var_explained([30.19,16.08,11.07,5.98])
-        pca.draw_curve_from_diagonal_values([30.19,16.08,11.07,5.98])
+        S = [30.19,16.08,11.07,5.98]
+        pca.var_explained(S)
+        pca.draw_curve_from_diagonal_values(S)
         # We can see that only C is correct
         return "C"
 

@@ -294,7 +294,7 @@ class exam:
     def opg22():
         outer_fold = 4 # Aka K1
         inner_fold = 5 # Aka K2
-        no_tested_values = 5
+        no_tested_values = 5 # aka S
         models = outer_fold * (inner_fold*no_tested_values+1)
         # We are running 2 models - neural network and regression
         models = models * 2

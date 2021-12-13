@@ -301,6 +301,7 @@ class ensemble:
                 true positive rate = "tpr"
                 false positive rate = "fpr"
                 show confususion matrix = "show"
+                F-measure = "f_meas"
                 Receiver operating characteristic plot (TPR~FPR plot) = "roc"
                 show table with all values (list not necessary)= "all"
         """
@@ -314,6 +315,7 @@ class ensemble:
         err = (FN + FP) / N
         TPR = TP / (TP + FN)
         FPR = FP / (TN + FP)
+        F = (2*p*r)/(p+r)
 
         if "p" in stats:
             print("The precision is {}".format(p))
@@ -342,12 +344,13 @@ class ensemble:
             plt.ylabel("TPR")
             plt.xlabel("FPR")
             plt.show()
-
+        if "f_meas" in stats:
+            print ("The F measure is {}".format(F))
         if "all" in stats:
             all = pd.DataFrame(
                 {
-                    "Stat": ["Precision", "Recall", "Accuracy", "Error", "TPR", "FPR"],
-                    "Value": [p, r, acc, err, TPR, FPR],
+                    "Stat": ["Precision", "Recall", "Accuracy", "Error", "TPR", "FPR","F-measure"],
+                    "Value": [p, r, acc, err, TPR, FPR,F],
                 }
             )
             print(all)
@@ -413,7 +416,7 @@ class ensemble:
         """Generates a ROC curve from true labels and predicted class probabilities
 
         Args:
-            truth (list): List with true class labels
+            truth (list): List with true class labels (can also be a prediction from a model)
             probabilities (list): List with predicted class probabilities
         """
         plt.figure(1)
@@ -427,8 +430,8 @@ class supervised:
         """
         calculates predictions given a matrix with euclidean distances, can only handle two classes: red and black
         -------------------------------------------------------
-        class1 = list with numbers of observations in the red class (starts at 1)
-        class2 = list with numbers of observations in the black class (starts at 1)
+        class1 = list with coloumn numbers of observations in the red class (starts at 1)
+        class2 = list with coloumn numbers of observations in the black class (starts at 1)
         """
         classes = {"red": class1, "black": class2}
 
@@ -484,9 +487,9 @@ class supervised:
         """
         calculates predictions given a matrix with euclidean distances, can handle tree classes: red, black, blue
         -------------------------------------------------------
-        class1 = list with numbers of observations in the red class (starts at 1)
-        class2 = list with numbers of observations in the black class (starts at 1)
-        class3 = list with numbers of observations in the blue class (starts at 1)
+        class1 = list with coloumn numbers of observations in the red class (starts at 1)
+        class2 = list with coloumn numbers of observations in the black class (starts at 1)
+        class3 = list with coloumn numbers of observations in the blue class (starts at 1)
         """
         classes = {"red": class1, "black": class2,"blue": class3}
 
@@ -599,6 +602,12 @@ class supervised:
         -----------
         true_labels = list of true labels
         pred_labels = list of predicted labels
+        
+        If using predictions from knn function, you can call it the following way:
+        red_classes = [1,2,3,4,5,6,7,8]
+        black_classes = [9,10,11]
+        pred = sup.knn_dist_pred_2d(df,red_classes,black_classes,1)
+        sup.pred_stats(pred["True_label"],pred["Predicted_label"],show=True)
         """
         true_labels = np.array(true_labels)
         pred_labels = np.array(pred_labels)
@@ -615,64 +624,66 @@ class supervised:
             print(results)
 
         return results
+    
+    # def naive_bayes_2class(self, y, df, cols, col_vals, pred_class):
+    #     """
+    #     BE CAREFUL OF USING THIS ONE - The one below is better
+    #     probability of a naive bayes classifier
+    #     -------------------------------------
+    #     parameters:
+    #     ----------
+    #     y = list of labels (must be 0 and 1's)
+    #     df = data frame with binary data
+    #     cols = columns to condition the probability on (0 index)
+    #     col_vals = the values the columns are condtioned on
+    #     pred_class = the class you would like to predict the probability of (must be 0 or 1)
+    #     """
+    #     y = np.array(y)
+    #     if pred_class == 1:
+    #         t = np.mean(y)
+    #         suby = df.iloc[y == pred_class, :]
+    #         for i in range(len(cols)):
+    #             p = np.mean(suby.loc[:, cols[i]] == col_vals[i])
+    #             t *= p
 
-    def naive_bayes_2class(self, y, df, cols, col_vals, pred_class):
-        """
-        probability of a naive bayes classifier
-        -------------------------------------
-        parameters:
-        ----------
-        y = list of labels (must be 0 and 1's)
-        df = data frame with binary data
-        cols = columns to condition the probability on
-        col_vals = the values the columns are condtioned on
-        pred_class = the class you would like to predict the probability of (must be 0 or 1)
-        """
-        y = np.array(y)
-        if pred_class == 1:
-            t = np.mean(y)
-            suby = df.iloc[y == pred_class, :]
-            for i in range(len(cols)):
-                p = np.mean(suby.loc[:, cols[i]] == col_vals[i])
-                t *= p
+    #         n = np.mean(y)
+    #         suby = df.iloc[y == 0, :]
+    #         for i in range(len(cols)):
+    #             p = np.mean(suby.loc[:, cols[i]] == col_vals[i])
+    #             n *= p
 
-            n = np.mean(y)
-            suby = df.iloc[y == 0, :]
-            for i in range(len(cols)):
-                p = np.mean(suby.loc[:, cols[i]] == col_vals[i])
-                n *= p
+    #         prob = t / (n + t)
 
-            prob = t / (n + t)
+    #     if pred_class == 0:
+    #         t = 1 - np.mean(y)
+    #         suby = df.iloc[y == pred_class, :]
+    #         for i in range(len(cols)):
+    #             p = np.mean(suby.loc[:, cols[i]] == col_vals[i])
+    #             t *= p
 
-        if pred_class == 0:
-            t = 1 - np.mean(y)
-            suby = df.iloc[y == pred_class, :]
-            for i in range(len(cols)):
-                p = np.mean(suby.loc[:, cols[i]] == col_vals[i])
-                t *= p
+    #         n = 1 - np.mean(y)
+    #         suby = df.iloc[y == 1, :]
+    #         for i in range(len(cols)):
+    #             p = np.mean(suby.loc[:, cols[i]] == col_vals[i])
+    #             n *= p
 
-            n = 1 - np.mean(y)
-            suby = df.iloc[y == 1, :]
-            for i in range(len(cols)):
-                p = np.mean(suby.loc[:, cols[i]] == col_vals[i])
-                n *= p
+    #         prob = t / (n + t)
 
-            prob = t / (n + t)
-
-        print(
-            "The probability that the given class is predicted by the Naïve Bayes classifier is {}".format(
-                prob
-            )
-        )
-        return None
+    #     print(
+    #         "The probability that the given class is predicted by the Naïve Bayes classifier is {}".format(
+    #             prob
+    #         )
+    #     )
+    #     return None
+    
 
     def naive_bayes(self, y, df, cols, col_vals, pred_class):
         """
-        probability of a naive bayes classifier
+        probability of a naive bayes classifier, with more than 2 classes
         -------------------------------------
         parameters:
         ----------
-        y = list of labels (starting at 0)
+        y = list of observation class labels (starting at 0)
         df = data frame with binary data
         cols = columns to condition the probability on (starts at 0)
         col_vals = the values the columns are condtioned on
@@ -798,14 +809,17 @@ class cluster:
         x : Cluster A (labels) = The truth: Example: [1,2,1,1,1,2,2,2,2,1]
 
         y : Cluster B eg. [1,2,1,1,1,3,1,1,1,1]
-        Example from:
+     
+        Printer similarity Index - Rand og Jaccard
+        
+        Example from Spring 2018, Ex 17:
         Cutoff at the level of 3 clusters = 3 vertical lines
         Here we see O2 has been seperated, and O6 as well. 
         Since O2 was seperated in the first cluster, we give it 2
         And O6 we give 3
         The rest have not been seperated yet, but majority black so we give it 1
         
-        Printer similarity Index - Rand og Jaccard
+        Also look at spring 2019, exercise 7
         """
         x = np.array(x)
         np.array(y)
@@ -897,14 +911,10 @@ class similarity:
         """
         Parameters
         ----------
-        x : Gruppe A
-        y : Gruppe B
+        x : List of observations/predictions, A
+        y : List of observations/predictions, B
 
-        Returns: Similarity - Cosinun, SMC, Jaccard
-        eller den returnere ikke noget, den printer bare
-        -------
-        Copyright Peter Pik,
-        Danmarks Tekniske Universitet
+        Prints: Similarity - Cosinun, SMC, Jaccard
         """
         f00 = 0
         f01 = 0
@@ -951,54 +961,54 @@ class similarity:
         return p
         
         
-    def similarity(self, X, Y, method):
-        '''
-        Does it really work ??
-        SIMILARITY Computes similarity matrices
+    # def similarity(self, X, Y, method):
+    #     '''
+    #     Does it really work ??
+    #     SIMILARITY Computes similarity matrices
 
-        Usage:
-            sim = similarity(X, Y, method)
+    #     Usage:
+    #         sim = similarity(X, Y, method)
 
-        Input:
-        X   N1 x M matrix
-        Y   N2 x M matrix 
-        method   string defining one of the following similarity measure
-            'SMC', 'smc'             : Simple Matching Coefficient
-            'Jaccard', 'jac'         : Jaccard coefficient 
-            'ExtendedJaccard', 'ext' : The Extended Jaccard coefficient
-            'Cosine', 'cos'          : Cosine Similarity
-            'Correlation', 'cor'     : Correlation coefficient
+    #     Input:
+    #     X   N1 x M matrix
+    #     Y   N2 x M matrix 
+    #     method   string defining one of the following similarity measure
+    #         'SMC', 'smc'             : Simple Matching Coefficient
+    #         'Jaccard', 'jac'         : Jaccard coefficient 
+    #         'ExtendedJaccard', 'ext' : The Extended Jaccard coefficient
+    #         'Cosine', 'cos'          : Cosine Similarity
+    #         'Correlation', 'cor'     : Correlation coefficient
 
-        Output:
-        sim Estimated similarity matrix between X and Y
-            If input is not binary, SMC and Jaccard will make each
-            attribute binary according to x>median(x)
+    #     Output:
+    #     sim Estimated similarity matrix between X and Y
+    #         If input is not binary, SMC and Jaccard will make each
+    #         attribute binary according to x>median(x)
 
-        Copyright, Morten Morup and Mikkel N. Schmidt
-        Technical University of Denmark '''
+    #     Copyright, Morten Morup and Mikkel N. Schmidt
+    #     Technical University of Denmark '''
 
-        X = np.mat(X)
-        Y = np.mat(Y)
-        N1, M = np.shape(X)
-        N2, M = np.shape(Y)
+    #     X = np.mat(X)
+    #     Y = np.mat(Y)
+    #     N1, M = np.shape(X)
+    #     N2, M = np.shape(Y)
         
-        method = method[:3].lower()
-        if method=='smc': # SMC
-            #X,Y = binarize(X,Y);
-            sim = ((X*Y.T)+((1-X)*(1-Y).T))/M
-        elif method=='jac': # Jaccard
-            #X,Y = binarize(X,Y);
-            sim = (X*Y.T)/(M-(1-X)*(1-Y).T)        
-        elif method=='ext': # Extended Jaccard
-            XYt = X*Y.T
-            sim = XYt / (np.log( np.exp(sum(np.power(X.T,2))).T * np.exp(sum(np.power(Y.T,2))) ) - XYt)
-        elif method=='cos': # Cosine
-            sim = (X*Y.T)/(np.sqrt(sum(np.power(X.T,2))).T * np.sqrt(sum(np.power(Y.T,2))))
-        elif method=='cor': # Correlation
-            X_ = st.zscore(X,axis=1,ddof=1)
-            Y_ = st.zscore(Y,axis=1,ddof=1)
-            sim = (X_*Y_.T)/(M-1)
-        return sim
+    #     method = method[:3].lower()
+    #     if method=='smc': # SMC
+    #         #X,Y = binarize(X,Y);
+    #         sim = ((X*Y.T)+((1-X)*(1-Y).T))/M
+    #     elif method=='jac': # Jaccard
+    #         #X,Y = binarize(X,Y);
+    #         sim = (X*Y.T)/(M-(1-X)*(1-Y).T)        
+    #     elif method=='ext': # Extended Jaccard
+    #         XYt = X*Y.T
+    #         sim = XYt / (np.log( np.exp(sum(np.power(X.T,2))).T * np.exp(sum(np.power(Y.T,2))) ) - XYt)
+    #     elif method=='cos': # Cosine
+    #         sim = (X*Y.T)/(np.sqrt(sum(np.power(X.T,2))).T * np.sqrt(sum(np.power(Y.T,2))))
+    #     elif method=='cor': # Correlation
+    #         X_ = st.zscore(X,axis=1,ddof=1)
+    #         Y_ = st.zscore(Y,axis=1,ddof=1)
+    #         sim = (X_*Y_.T)/(M-1)
+    #     return sim
 
 
 class anomaly:
@@ -1184,6 +1194,20 @@ class adaboost:
         print(alpha)
         
         return alpha
+    def get_alpha_given_errors(self,er):
+        """print the alphas from an error given
+
+        Args:
+            er ([list]): list of weighted errors given in exercise e_t
+        """
+        er = np.array(er)
+        alpha = []
+        for e in er:
+            alpha.append(1 / 2 * np.log((1 - e) / e))
+            
+        print(alpha)
+        
+        return alpha
 class ann:
     
     def logistic(self,x):
@@ -1252,8 +1276,8 @@ class gmm:
         cov_inv = np.linalg.inv(cov)  # inverse of covariance matrix
         cov_det = np.linalg.det(cov)  # determinant of covariance matrix
         # Plotting
-        x = np.linspace(-18, 0, N) # Size of coordinate system
-        y = np.linspace(-6, 14, N)
+        x = np.linspace(-3, 5, N) # Size of coordinate system
+        y = np.linspace(-1.1, 2, N)
         X,Y = np.meshgrid(x,y)
         coe = 1.0 / ((2 * np.pi)**2 * cov_det)**0.5
         Z = coe * np.e ** (-0.5 * (cov_inv[0,0]*(X-m[0])**2 + (cov_inv[0,1] + cov_inv[1,0])*(X-m[0])*(Y-m[1]) + cov_inv[1,1]*(Y-m[1])**2))

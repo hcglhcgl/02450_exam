@@ -5,6 +5,8 @@ import pandas as pd
 from exam_toolbox import *
 import re
 import os
+from math import exp
+from scipy.integrate import quad
 
 
 class exam:

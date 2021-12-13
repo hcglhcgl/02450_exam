@@ -265,7 +265,7 @@ class exam:
                [1,0,0,1,0,1,0,1,0,1,1,0]]
         df = pd.DataFrame(data)
         super = supervised()
-        super.naive_bayes_2class([1,0,1,1,1,0,0,0,0,1],df,[3,5,7,9],[1,1,1,1],1)
+        super.naive_bayes([1,0,1,1,1,0,0,0,0,1],df,[3,5,7,9],[1,1,1,1],1)
         # We see the answer is 0.0816 = 4/49. Answer C
         return "C"
 
@@ -346,7 +346,7 @@ class exam:
 #        ans.loc[2] = "Q02: {}".format(exam.opg2())
 #        ans.loc[3] = "Q03: {}".format(exam.opg3())
 #        ans.loc[4] = "Q04: {}".format(exam.opg4())
-        ans.loc[5] = "Q05: {}".format(exam.opg5())
+        # ans.loc[5] = "Q05: {}".format(exam.opg5())
 #        ans.loc[6] = "Q06: {}".format(exam.opg6())
 #        ans.loc[7] = "Q07: {}".format(exam.opg7())
 #        ans.loc[8] = "Q08: {}".format(exam.opg8())
@@ -366,7 +366,7 @@ class exam:
 #        ans.loc[21] = "Q20: {}".format(exam.opg20())
 #        ans.loc[22] = ""
 
-#        ans.loc[23] = "Q21: {}".format(exam.opg21())
+        ans.loc[23] = "Q21: {}".format(exam.opg21())
 #        ans.loc[24] = "Q22: {}".format(exam.opg22())
 #        ans.loc[25] = "Q23: {}".format(exam.opg23())
 #        ans.loc[26] = "Q24: {}".format(exam.opg24())
