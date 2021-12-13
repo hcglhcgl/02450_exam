@@ -57,7 +57,7 @@ class exam:
         Postive value = seperates high body mass from low body mass.
         This means D is correct
         """
-        return "E"
+        return "D"
 
     # ----------------------------------------------- OPG 7-----------------------------------------------
     def opg7():
@@ -220,43 +220,66 @@ class exam:
 
     # ----------------------------------------------- OPG 20-----------------------------------------------
     def opg20():
-        # We see from Sauds scripts, that it must be B
-        return "E"
+        # We see from Sauds scripts "Classification graphing_3classes_3rules", that it must be B
+        return "B"
 
     # ----------------------------------------------- OPG 21-----------------------------------------------
     def opg21():
-
-        return "E"
+        # Solved using Mine_Scripts/output_probability.py, and testing for x = 14, 16 & and 18
+        #This means the answer must be D
+        return "D"
 
     # ----------------------------------------------- OPG 22-----------------------------------------------
     def opg22():
-
+        # Dunno
         return "E"
 
     # ----------------------------------------------- OPG 23-----------------------------------------------
     def opg23():
-
-        return "E"
+        test = model_test()
+        # We apply the mcnemar function. The total number of times (over all folds) where M1 is correct and M2 incorrect is 28
+        # Sum of M2 incorrect and M1 correct is 35 times
+        test.mcnemar_test(28,35)
+        # We see the P-value is 0.45
+        return "B"
 
     # ----------------------------------------------- OPG 24-----------------------------------------------
     def opg24():
-
-        return "E"
+        ens = ensemble()
+        true = [1,0,0,1,1,0,1]
+        pred = [0.01,0.05,0.14,0.3,0.31,0.36,0.91]
+        ens.plot_roc_pred(true,pred)
+        # We see the answer must be curve 3, answer C
+        return "C"
 
     # ----------------------------------------------- OPG 25-----------------------------------------------
     def opg25():
-
+        # Using the ANN_parameters.py script we see that there must be 51 parameters
         return "E"
 
     # ----------------------------------------------- OPG 26-----------------------------------------------
     def opg26():
-
-        return "E"
+        # Bayes problem:
+        P_ID_penguin = 0.97
+        P_ID_no_penguin = 0.03
+        P_penguin = 0.01
+        P_no_penguin = 0.99
+        P_penguin_ID = (P_ID_penguin*P_penguin)/(P_ID_penguin*P_penguin+P_ID_no_penguin*P_no_penguin)
+        print (P_penguin_ID)
+        return "D"
 
     # ----------------------------------------------- OPG 27-----------------------------------------------
     def opg27():
-
-        return "E"
+        # Outer fold, split into 3, 2 for training 1 for testing
+        # 222 in training, 111 testing.
+        # The observation will be part of training 2 times
+        # Inner fold: Leave-one-out, 221 times training.
+        # 4 models trained for regularization constant
+        # We also train one for optimal choice of lambda on the outer fold set
+        obs_training = 2 * (221 * 4 + 1)
+        print (obs_training)
+        # The answer must be C
+        return "C"
 
     # -------------------------------- answers dataframe -------------------------------------------------
     def answers(show=True, csv=False, excel=False):
@@ -285,7 +308,7 @@ class exam:
         # ans.loc[17] = "Q16: {}".format(exam.opg16())
         # ans.loc[18] = "Q17: {}".format(exam.opg17())
         # ans.loc[19] = "Q18: {}".format(exam.opg18())
-        ans.loc[20] = "Q19: {}".format(exam.opg19())
+        # ans.loc[20] = "Q19: {}".format(exam.opg19())
         # ans.loc[21] = "Q20: {}".format(exam.opg20())
         # ans.loc[22] = ""
 

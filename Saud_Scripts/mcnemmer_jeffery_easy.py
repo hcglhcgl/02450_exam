@@ -12,7 +12,7 @@ import scipy.stats as st
 #Jeffery interval
 n = 14 #observations
 m = 8 #correct classified
-alpha = 0.05 #always =0.5
+alpha = 0.05 #always = 0.05
 
 a = m + 0.5
 b = n-m +0.5

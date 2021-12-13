@@ -21,6 +21,7 @@ from apyori import apriori
 from sklearn.cluster import KMeans
 import sklearn.metrics as metrics
 import itertools as IT
+import scipy.stats as st
 
 
 class prep_tools:
@@ -407,6 +408,17 @@ class ensemble:
         plt.show()
 
         return roc_auc
+    def plot_roc_pred(self,truth,probabilities):
+        """Generates a ROC curve from true labels and predicted class probabilities
+
+        Args:
+            truth (list): List with true class labels
+            probabilities (list): List with predicted class probabilities
+        """
+        plt.figure(1)
+        tb.rocplot(probabilities, truth)
+
+        plt.show()  
 
 
 class supervised:
@@ -467,12 +479,82 @@ class supervised:
 
         return predictions
 
-    def knn_dist_pred(self, df, classes, K):
+    def knn_dist_pred_3d(self, df, class1, class2, class3, K, show=False):
         """
-        calculates predictions given a matrix with euclidean distances, can handle multiple classes
+        calculates predictions given a matrix with euclidean distances, can handle tree classes: red, black, blue
         -------------------------------------------------------
         class1 = list with numbers of observations in the red class (starts at 1)
         class2 = list with numbers of observations in the black class (starts at 1)
+        class3 = list with numbers of observations in the blue class (starts at 1)
+        """
+        classes = {"red": class1, "black": class2,"blue": class3}
+
+        # Get indexes of of red/black observations
+        red_ind = [i - 1 for i in classes["red"]]
+        black_ind = [i - 1 for i in classes["black"]]
+        blue_ind = [i - 1 for i in classes["blue"]]
+
+        pred_label = []
+        O = [i for i in range(1, df.shape[1] + 1)]
+
+        for row in range(df.shape[0]):
+            dist = df.loc[row, :].values
+            # sort
+            dist_sort = np.argsort(dist)
+            k_nearest_ind = dist_sort[1 : K + 1]
+
+            pred_red = 0
+            pred_black = 0
+            pred_blue = 0
+
+            for i in range(K):
+                if k_nearest_ind[i] in red_ind:
+                    pred_red += 1
+                elif k_nearest_ind[i] in black_ind:
+                    pred_black += 1
+                elif k_nearest_ind[i] in blue_ind:
+                    pred_blue += 1
+            if pred_red > pred_black and pred_red > pred_blue:
+                pred_label.append("red")
+            elif pred_black > pred_red and pred_black > pred_blue:
+                pred_label.append("black")
+            elif pred_blue > pred_red and pred_blue > pred_black:
+                pred_label.append("blue")
+            elif pred_black == pred_red == pred_blue:
+                if k_nearest_ind[0] in red_ind:
+                    pred_label.append("red")
+                elif k_nearest_ind[0] in black_ind:
+                    pred_label.append("black")
+                else:
+                    pred_label.append("blue")
+        true_label = []
+        for obs in O:
+            if obs - 1 in red_ind:
+                true_label.append("red")
+            elif obs - 1 in black_ind:
+                true_label.append("black")
+            elif obs - 1 in blue_ind:
+                true_label.append("blue")
+
+        predictions = pd.DataFrame(
+            {"Obs": O, "True_label": true_label, "Predicted_label": pred_label}
+        )
+
+        if show:
+            print("-" * 100)
+            print("The predictions when using the {} nearest neighbors are: ".format(K))
+            print(predictions)
+
+        return predictions
+    
+    def knn_dist_pred(self, df, classes, K):
+        """
+        !!!!!!!doesnt really work !!!!!!!! ?!?
+        calculates predictions given a matrix with euclidean distances, can handle multiple classes
+        -------------------------------------------------------
+        class1 = list with coloumn numbers of observations in the red class (starts at 1)
+        class2 = list with coloumn numbers of observations in the black class (starts at 1)
+        class3 = list with coloumn numbers of observations in the blue class (starts at 1)
         """
 
         classes = np.array(classes)
@@ -593,7 +675,7 @@ class supervised:
         df = data frame with binary data
         cols = columns to condition the probability on (starts at 0)
         col_vals = the values the columns are condtioned on
-        pred_class = the class you would like to predict the probability of (starts at 0)
+        pred_class = the class you would like to predict the probability of (starts at 0) <- remember this if y starts on 1
         """
         y = np.array(y)
 
@@ -662,7 +744,7 @@ class cluster:
         dist_df = symmetrical matrix/dataframe containing distances
         Method = linkage method:
             "single"
-            "complete"
+            "complete" aka Maximum
             "average"
         orientation = orientation of plot:
             "top"
@@ -1050,11 +1132,23 @@ class ann:
 
     def get_ann(self,w02, weights, matrices, activation='logistic'):
         """
-
+        w02 : the w02 given in the xercise
+        weights : list of the weights which have superscript (2)
+        matrices : the matrices, usually w_n^(1)
         ann = get_ann(2.84, [3.25, 3.46], [[21.78, -1.65, 0, -13.26, -8.46], [-9.6, -0.44, 0.01, 14.54, 9.5]], "rect")
         y = ann([1, 6.8, 225, 0.44, 0.68])
-
+        
+        Example in Spring 2018, Exercise 8:
+        an_model = ann_obj.get_ann(0.3799E-6, [-0.3440E-6, 0.0429E-6], [[0.0189, 0.9159, -0.4256], [3.7336, -0.8003, 5.0741]], "logistic")
+        
+        #  !! Always put "1" as first for some reason !!
+        y_1 = an_model([1,0, 3])
+        y_2 = an_model([1,24, 0])
         REMEMBER TO PUT "1" AT THE START OF ann([..])
+        
+        activation: Sigmoid = Logistic Activation
+                    Tanh = hyperbolic tangent
+                    Rect = Linear activation
         """
         matrices = np.array([np.matrix(m).T for m in matrices])
         weights = np.array(weights)
@@ -1101,6 +1195,7 @@ class itemset:
         """
         df: dataframe with each row being a basket, and each column being an item
         support_min: minimum support level
+        Remember that the printed itemsets start from 0!
         """
         itemsets = []
         n = len(df)
@@ -1129,6 +1224,7 @@ class itemset:
         """
         df is a pandas dataframe
         antecedentCols are the labels for the columns/items that make up the antecedent in the association rule
+        For both: Remember index starts at 0!
         consequentCols are the labels for the columns/items that make up the consequent in the association rule
         """
         top = itemset.support(self,df[antecedentCols + consequentCols])
@@ -1136,4 +1232,42 @@ class itemset:
         conf = top/bottom
         print ("The confidence is: ", conf)
         return conf
-# tests
+class model_test:
+    def jeffery_interval(self,obs,corr_obs):
+        """
+        Prints the jeffery interval for a model. 
+        obs : observations
+        corr_obs : correctly classified observations
+        """
+        n = obs #observations
+        m = corr_obs #correct classified
+        alpha = 0.05 #always = 0.05
+
+        a = m + 0.5
+        b = n-m + 0.5
+
+        #Confidence Intervals
+        CI_L = st.beta.ppf(alpha/2,a,b)
+        CI_H = st.beta.ppf(1-alpha/2,a,b)
+        theta = a/(a+b)
+
+        #Jeffery Intervals Results
+        print(f"a={a}")
+        print(f"b={b}")
+        print(f"CI_L={CI_L}")
+        print(f"CI_H={CI_H}")
+        print(f"Theta={theta}")
+
+    def mcnemar_test(self,n1,n2):
+        """
+        Prints the p value from the McNemar test between 2 classification models 
+        n1 : the total number of times that Model 1 is correct and Model 2 is incorrect. Remember to sum, if multiple folds
+        n2 : the total number of times that Model 1 is incorrect and Model 2 is correct. Remember to sum, if multiple folds
+        """
+        N = n1+n2
+        m = min(n1,n2)
+        theta = 1/2 #always
+        
+        p_val = 2*st.binom.cdf(m,N,theta)
+        
+        print(f"p-val={p_val:.5f}")

@@ -2,8 +2,7 @@
 #Known: Classification functions
 #Unknown: How will the 2d plot look like after applying the classification funs?
 
-
-#Midterm quiz 2
+# Right now it only shows the first two classes!!!!!!
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -47,9 +46,9 @@ class3="yellow"
 
 #Classificaiton functions and rules(given in the question):
 #Lambda functions format in python: lambda [input vars]:[functions statement]
-cA = lambda x1,x2:np.linalg.norm(np.array((x1-6,x2-4)).T,1,axis=1) <3
-cB = lambda x1,x2:np.linalg.norm(np.array((x1-4,x2-2)).T,1,axis=1) <3
-cC = lambda x1,x2:np.linalg.norm(np.array((x1-2,x2-4)).T,1,axis=1) <3
+cA = lambda x1,x2:np.linalg.norm(np.array((x1-2,x2-4)).T,1,axis=1) < 2
+cB = lambda x1,x2:np.linalg.norm(np.array((x1-6,x2-0)).T,2,axis=1) < 3
+cC = lambda x1,x2:np.linalg.norm(np.array((x1-4,x2-2)).T,2,axis=1) < 2
 dec_tree = lambda A,B: np.where(A,class1,np.where(B,class2,class3)) #if true, class 1, else: check other condition
 
 c_funcs = [
