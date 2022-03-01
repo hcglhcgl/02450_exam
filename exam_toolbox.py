@@ -1134,7 +1134,7 @@ class association_mining:
         T = self.mat2transactions(df, labels=names)
 
         rules = apriori(T, min_support=sup, min_confidence=conf)
-        frules, rules_conf_sup = self.print_apriori_rules(rules, prints=False)
+        frules, rules_conf_sup = self.print_apriori_rules(rules, prints=True)
 
         # sort by the x itemsets
         rules_conf_sup = rules_conf_sup.sort_values(by="support")
@@ -1276,8 +1276,8 @@ class gmm:
         cov_inv = np.linalg.inv(cov)  # inverse of covariance matrix
         cov_det = np.linalg.det(cov)  # determinant of covariance matrix
         # Plotting
-        x = np.linspace(-3, 5, N) # Size of coordinate system
-        y = np.linspace(-1.1, 2, N)
+        x = np.linspace(-10, 10, N) # Size of coordinate system
+        y = np.linspace(-10, 20, N)
         X,Y = np.meshgrid(x,y)
         coe = 1.0 / ((2 * np.pi)**2 * cov_det)**0.5
         Z = coe * np.e ** (-0.5 * (cov_inv[0,0]*(X-m[0])**2 + (cov_inv[0,1] + cov_inv[1,0])*(X-m[0])*(Y-m[1]) + cov_inv[1,1]*(Y-m[1])**2))
@@ -1332,6 +1332,8 @@ class itemset:
         itemsets = []
         n = len(df)
         for itsetSize in np.arange(1, len(df.columns) + 1): # Start with 1-itemsets, keep going till n_attributes-itemsets
+            itemsets.append("L: ")
+            itemsets.append(itsetSize)
             for combination in IT.combinations(df.columns, itsetSize):
                 sup = itemset.support(self,df[list(combination)])
                 if sup > support_min:
