@@ -1,0 +1,39 @@
+ELECTRONIC HANDIN FOR THE 02450 EXAM
+
+The exam is multiple choice. All questions have four possible answers marked by the letters A, B, C, and D as well as the answer "Don't know" marked by the letter E. Correct answer gives 3 points, wrong answer gives -1 point, and "Don't know" (E) gives 0 points.
+
+The individual questions are answered by replacing the question marks '?' at each of the 27 questions with one of the letters A, B, C, D, or E.
+
+Please do not change the file format or write additional comments asides your student number and your answers in terms of the letters A, B, C, D or E for each of the questions. 
+
+Student number: s174852
+
+Q01: B
+Q02: C
+Q03: B
+Q04: A
+Q05: D
+Q06: E
+Q07: C
+Q08: B
+Q09: E
+Q10: C
+
+Q11: B
+Q12: B
+Q13: B
+Q14: B
+Q15: E
+Q16: D
+Q17: C
+Q18: E
+Q19: D
+Q20: A
+
+Q21: E
+Q22: E
+Q23: E
+Q24: E
+Q25: E
+Q26: B
+Q27: C
